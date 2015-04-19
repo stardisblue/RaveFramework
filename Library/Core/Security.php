@@ -20,7 +20,7 @@ class Security
      */
     public static function hash($data)
     {
-        return hash('whirlpool', $data . Config::getSeed(), FALSE);
+        return hash('whirlpool', $data . Config::getSeed(), false);
     }
 
     /**
@@ -49,7 +49,7 @@ class Security
      */
     public static function isEmail($email)
     {
-        return filter_var($email, FILTER_VALIDATE_EMAIL) !== FALSE;
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     /**
@@ -63,31 +63,22 @@ class Security
      */
     public static function moveUploadedFile($fileName, $path, $extensions)
     {
-        if (isset($_FILES[$fileName]))
-        {
+        if (isset($_FILES[$fileName])) {
             $extension = strrchr($_FILES[$fileName]['name'], '.');
 
-            if (in_array($extension, $extensions) === TRUE)
-            {
+            if (in_array($extension, $extensions)) {
                 $file = uniqid() . $extension;
                 
-                if (move_uploaded_file($_FILES[$fileName]['tmp_name'], ROOT . $path . DS . $file) === FALSE)
-                {
-                    return FALSE;
-                }
-                else
-                {
+                if (move_uploaded_file($_FILES[$fileName]['tmp_name'], ROOT . $path . '/' . $file) === false) {
+                    return false;
+                } else {
                     return $file;
                 }
+            } else {
+                return false;
             }
-            else
-            {
-                return FALSE;
-            }
-        }
-        else
-        {
-            return FALSE;
+        } else {
+            return false;
         }
     }
 

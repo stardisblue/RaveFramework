@@ -25,7 +25,7 @@ class Http
      * @param string $page
      *  Nom du controleur à appeler
      */
-    public static function redirect($page = '')
+    public static function redirect($page)
     {
         header('Location: ' . $page);
     }

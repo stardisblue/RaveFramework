@@ -2,7 +2,7 @@
 
 namespace Rave\Core\Exception;
 
-class RouterException extends \Exception
+class IOException extends \Exception
 {
 
     public function __construct($message)

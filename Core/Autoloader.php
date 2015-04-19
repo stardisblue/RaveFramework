@@ -13,7 +13,7 @@ class Autoloader
      * @param string $className
      *  Nom de la classe à inclure
      */
-    private static function autoload($className)
+    private static function _autoload($className)
     {
         if (strpos($className, 'Rave') === 0) {
             require_once ROOT . '/' . str_replace('\\', '/', str_replace('Rave', null, $className)) . '.php';
@@ -25,7 +25,7 @@ class Autoloader
      */
     public static function register()
     {
-        spl_autoload_register([__CLASS__, 'autoload']);
+        spl_autoload_register([__CLASS__, '_autoload']);
     }
 
 }

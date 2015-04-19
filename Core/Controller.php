@@ -40,7 +40,7 @@ abstract class Controller
             Error::create('Erreur chargement vue');
         }
 
-        $content = ob_get_contents();
+        $content = ob_get_clean();
 
         if ($this->_layout === false) {
             echo $content;
@@ -123,7 +123,7 @@ abstract class Controller
     {
         $file = ROOT . '/Application/View/Layout/' . $layout . '.php';
 
-        $this->_layout = file_exists($file) === true ? $layout : false;
+        $this->_layout = file_exists($file) && !is_dir($file) ? $layout : false;
     }
 
 }

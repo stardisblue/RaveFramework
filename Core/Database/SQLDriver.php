@@ -2,7 +2,7 @@
 
 namespace Rave\Core\Database;
 
-interface Driver {
+interface SQLDriver {
     
     public static function query($statement, array $values = []);
     

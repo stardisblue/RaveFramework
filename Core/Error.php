@@ -22,7 +22,7 @@ class Error
         if (Config::isDebug()) {
             die($errorMessage);
         } else {
-            self::show($errorCode);
+            self::_show($errorCode);
         }
     }
 
@@ -30,7 +30,7 @@ class Error
      * Méthode de redirection vers une page
      * d'erreur
      */
-    public static function show($errorCode)
+    private static function _show($errorCode)
     {
         switch ($errorCode) {
             case '403':

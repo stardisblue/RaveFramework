@@ -11,28 +11,24 @@ class MySQLDriver implements Driver
 {
     private static $_instance;
 
-    private static function getInstance() {
+    private static function _getInstance()
+    {
         if (!isset(self::$_instance)) {
-            $host =& Config::getDatabase('host');
-            $login =& Config::getDatabase('login');
-            $password =& Config::getDatabase('password');
-            $databaseName =& Config::getDatabase('database');
-
             try {
-                self::$_instance = new PDO('mysql:dbname=' . $databaseName . ';host=' . $host, $login, $password);
+                self::$_instance = new PDO('mysql:dbname=' . Config::getDatabase('database') . ';host=' . Config::getDatabase('host'), Config::getDatabase('login'), Config::getDatabase('password'));
                 self::$_instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $pdoException) {
                 Error::create($pdoException->getMessage(), '500');
             }
         }
 
-        return parent::$_instance;
+        return self::$_instance;
     }
     
     public static function query($statement, array $values = [])
     {
         try {
-            $sql = self::getInstance()->prepare($statement);
+            $sql = self::_getInstance()->prepare($statement);
             $sql->execute($values);
             return $sql->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $pdoException) {
@@ -43,7 +39,7 @@ class MySQLDriver implements Driver
     public static function execute($statement, array $values = [])
     {
         try {
-            $sql = self::getInstance()->prepare($statement);
+            $sql = self::_getInstance()->prepare($statement);
             $sql->execute($values);
         } catch (PDOException $pdoException) {
             Error::create($pdoException->getMessage(), '500');

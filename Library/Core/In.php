@@ -19,7 +19,7 @@ class In
      */
     public static function get($get)
     {
-        return is_null(filter_input(INPUT_GET, $get)) ? FALSE : filter_input(INPUT_GET, $get, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        return filter_input(INPUT_GET, $get, FILTER_SANITIZE_FULL_SPECIAL_CHARS | FILTER_NULL_ON_FAILURE);
     }
 
     /**
@@ -32,7 +32,7 @@ class In
      */
     public static function session($session)
     {
-        return isset($_SESSION[$session]) ? $_SESSION[$session] : FALSE;
+        return isset($_SESSION[$session]) ? $_SESSION[$session] : null;
     }
 
     /**
@@ -45,7 +45,7 @@ class In
      */
     public static function unserializedSession($session)
     {
-        return isset($_SESSION[$session]) ? unserialize($_SESSION[$session]) : FALSE;
+        return isset($_SESSION[$session]) ? unserialize($_SESSION[$session]) : null;
     }
 
     /**
@@ -57,7 +57,7 @@ class In
      */
     public static function cookie($cookie)
     {
-        return is_null(filter_input(INPUT_COOKIE, $cookie)) ? FALSE : filter_input(INPUT_COOKIE, $cookie, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        return filter_input(INPUT_COOKIE, $cookie, FILTER_SANITIZE_FULL_SPECIAL_CHARS | FILTER_NULL_ON_FAILURE);
     }
 
     /**
@@ -73,14 +73,14 @@ class In
     {
         if (is_array($post)) {
             foreach ($post as $data) {
-                if (self::post($data) === FALSE) {
-                    return FALSE;
+                if (self::post($data) === null) {
+                    return false;
                 }
             }
 
-            return TRUE;
+            return true;
         } else {
-            return self::post($post) !== FALSE;
+            return self::post($post) !== null;
         }
     }
 
@@ -94,7 +94,7 @@ class In
      */
     public static function post($post)
     {
-        return is_null(filter_input(INPUT_POST, $post)) ? FALSE : filter_input(INPUT_POST, $post, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        return filter_input(INPUT_POST, $post, FILTER_SANITIZE_FULL_SPECIAL_CHARS | FILTER_NULL_ON_FAILURE);
     }
 
 }
