@@ -1,6 +1,7 @@
 <?php
 
 use Rave\Core\Controller;
+use Rave\Application\Model\UserModel;
 
 class Main extends Controller
 {
@@ -12,7 +13,7 @@ class Main extends Controller
 
     public function index()
     {
-        $this->loadView('viewMain', ['salut' => 'lelo']);
+        $this->loadView('viewMain', ['users' => UserModel::selectAll()]);
     }
 
 }

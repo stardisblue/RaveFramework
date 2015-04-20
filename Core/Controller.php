@@ -37,7 +37,7 @@ abstract class Controller
         if (file_exists($file)) {
             include_once $file;
         } else {
-            Error::create('Erreur chargement vue');
+            Error::create('Erreur chargement vue', '404');
         }
 
         $content = ob_get_clean();
@@ -98,7 +98,7 @@ abstract class Controller
         if (file_exists($path)) {
             require_once $path;
         } else {
-            Error::createError($error);
+            Error::create($error, '404');
         }
     }
 
@@ -123,7 +123,7 @@ abstract class Controller
     {
         $file = ROOT . '/Application/View/Layout/' . $layout . '.php';
 
-        $this->_layout = file_exists($file) && !is_dir($file) ? $layout : false;
+        $this->_layout = file_exists($file) ? $layout : false;
     }
 
 }

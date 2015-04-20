@@ -2,6 +2,9 @@
 
 namespace Rave\Config;
 
+use Rave\Core\Error;
+use Rave\Core\Database\DriverFactory;
+
 /**
  * Classe à modifier pour configurer les informations
  * nécessaires à l'accès à la base de données
@@ -15,6 +18,14 @@ class Config
      *  Vrai si mode debug, faux si mode production
      */
     private static $_debug = true;
+    
+    /**
+     * Attribut déterminant le driver de base de données
+     * utilisé
+     * @var string
+     * 	Constante determinant le type de driver à utiliser
+     */
+    private static $_databaseDriver = DriverFactory::MYSQL_PDO;
 
     /**
      * Attribut contenant les différentes informations
@@ -23,8 +34,8 @@ class Config
      *  Liste des infos de connexion
      */
     private static $_database = [
-        'database' => 'projettut',
         'host'     => 'localhost',
+        'database' => 'database',
         'login'    => 'root',
         'password' => 'root'
     ];
@@ -69,17 +80,31 @@ class Config
     {
         return self::$_debug;
     }
-
+    
     /**
      * Méthode accesseur
      * @return string
+     * 	Nom du driver pour la base de données
+     */
+    public static function getDatabaseDriver()
+    {
+    	return self::$_databaseDriver;
+    }
+
+    /**
+     * Méthode accesseur
+     * @param string
      *  Attribut databases
      * @return string
      *  Valeur associée à la clé
      */
     public static function getDatabase($key)
     {
-        return self::$_database[$key];
+    	if (isset(self::$_database[$key])) {
+        	return self::$_database[$key];
+    	} else {
+    		Error::create('Unknown database key ' . $key, '500');
+    	}
     }
 
     /**
@@ -103,7 +128,11 @@ class Config
      */
     public static function getError($key)
     {
-        return self::$_error[$key];
+    	if (isset(self::$_error[$key])) {
+    		return self::$_error[$key];
+    	} else {
+    		Error::create('Unknown error key ' . $key, '404');
+    	}
     }
 
     /**

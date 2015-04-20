@@ -1,8 +1,9 @@
 <?php
 
-namespace Rave\Core;
+namespace Rave\Core\Database;
 
 use PDOException, PDO;
+use Rave\Config\Config;
 
 /**
  * Super classe abstraite Model, doit être héritée par
@@ -17,13 +18,35 @@ abstract class Model
      * @var string
      *  Nom de la table
      */
-    protected static $table;
+    protected static $_table;
+    
     /**
      * Attribut désignant la clé primaire de la table
      * @var string
      *  Nom de la clé primaire
      */
-    protected static $primary;    
+    protected static $_primary;
+    
+    /**
+     * Attribut statique pour pattern Singleton
+     * @var \Rave\Core\Database\Driver\SQLDriver
+     * 	Driver de la base de données
+     */
+    protected static $_driver;
+    
+    /**
+     * Méthode accesseur utilisant le pattern Singleton
+     * @return \Rave\Core\Database\Driver\SQLDriver
+     * 	Driver de la base de données
+     */
+	protected static function _getInstance()
+	{
+		if (isset(self::$_driver) === false) {
+			self::$_driver = DriverFactory::connect(Config::getDatabaseDriver());
+		}
+		
+		return self::$_driver;
+	}
     
     /**
      * Méthode d'insertion générique
@@ -32,33 +55,25 @@ abstract class Model
      */
     public static function insert(array $rows)
     {
-        try
-        {
-            $firstHalfStatement = 'INSERT INTO ' . static::$table . ' (';
+		$firstHalfStatement = 'INSERT INTO ' . static::$_table . ' (';
 
-            $secondHalfStatement = ') VALUES (';
+		$secondHalfStatement = ') VALUES (';
 
-            foreach ($rows as $key => $value)
-            {
-                $firstHalfStatement .= $key . ', ';
-                $key = ':' . $key;
-                $secondHalfStatement .= $key . ', ';
-                stripcslashes($value);
-                trim($value);
-            }
+		foreach ($rows as $key => $value)
+		{
+			$firstHalfStatement .= $key . ', ';
+			$key = ':' . $key;
+			$secondHalfStatement .= $key . ', ';
+			stripcslashes($value);
+			trim($value);
+		}
 
-            $firstHalfRequest = rtrim($firstHalfStatement, ', ');
-            $secondHalfRequest = rtrim($secondHalfStatement, ', ');
+		$firstHalfRequest = rtrim($firstHalfStatement, ', ');
+		$secondHalfRequest = rtrim($secondHalfStatement, ', ');
 
-            $request = $firstHalfRequest . $secondHalfRequest . ')';
+		$statement = $firstHalfRequest . $secondHalfRequest . ')';
 
-            $sql = self::getInstance()->prepare($request);
-            $sql->execute($rows);
-        }
-        catch (PDOException $ex)
-        {
-            Error::createError($ex->getMessage());
-        }
+		self::_getInstance()->execute($statement, $rows);
     }
 
     /**
@@ -68,94 +83,57 @@ abstract class Model
      */
     public static function selectAll()
     {
-        try
-        {
-            $request = 'SELECT * FROM ' . static::$table;
-            $query = self::getInstance()->prepare($request);
-            $query->execute();
-            return $query->fetchAll(PDO::FETCH_OBJ);
-        }
-        catch (PDOException $ex)
-        {
-            Error::createError($ex->getMessage());
-        }
+		return self::_getInstance()->query('SELECT * FROM ' . static::$_table);
     }
 
     /**
      * Méthode générique de selection selon une valeur
      * de la clé primaire
-     * @param string $primary
+     * @param string $_primary
      *  Valeur de la clé primaire
      * @return object
      *  Objet contenant les valeurs selectionnées
      */
     public static function select($primary)
     {
-        try
-        {
-            $request = 'SELECT * FROM ' . static::$table . ' WHERE ' . static::$primary . ' = :primary';
-            $query = self::getInstance()->prepare($request);
-            $query->execute(array(':primary' => $primary));
-            return $query->fetch(PDO::FETCH_OBJ);
-        }
-        catch (PDOException $ex)
-        {
-            Error::createError($ex->getMessage());
-        }
+		return self::_getInstance()->queryOne('SELECT * FROM ' . static::$_table . ' WHERE ' . static::$_primary . ' = :primary', [':primary' => $primary]);
     }
 
     /**
      * Méthode générique de mise à jour
      * @param array $rows
      *  Nouvelles valeurs
-     * @param mixed $primary
+     * @param mixed $_primary
      *  Valeur de la clé primaire
      */
     public static function update(array $rows, $primary)
     {
-        try
-        {
-            $statement = 'UPDATE ' . static::$table . ' SET ';
+		$statement = 'UPDATE ' . static::$_table . ' SET ';
 
-            foreach ($rows as $key => $value)
-            {
-                $statement .= $key . ' = :' . $key . ', ';
-                stripcslashes($value);
-                trim($value);
-            }
+		foreach ($rows as $key => $value)
+		{
+			$statement .= $key . ' = :' . $key . ', ';
+			stripcslashes($value);
+			trim($value);
+		}
+            
+		$request = rtrim($statement, ', ');
+		$request .= ' WHERE ' . static::$_primary . ' = :primary';
 
-            $request = rtrim($statement, ', ');
-            $request .= ' WHERE ' . static::$primary . ' = :primary';
+		$rows[':primary'] = $primary;
 
-            $rows[':primary'] = $primary;
-
-            $sql = self::getInstance()->prepare($request);
-            $sql->execute($rows);
-        }
-        catch (PDOException $ex)
-        {
-            Error::createError($ex->getMessage());
-        }
+		self::_getInstance()->execute($request, $rows);
     }
 
     /**
      * Méthode générique permettant de supprimer
      * une ligne dans la base de données
-     * @param string $primary
+     * @param string $_primary
      *  Clauses de la condition WHERE
      */
     public static function delete($primary)
     {
-        try
-        {
-            $request = 'DELETE FROM ' . static::$table . ' WHERE ' . static::$primary . ' = :primary';
-            $sql = self::getInstance()->prepare($request);
-            $sql->execute(array(':primary' => $primary));
-        }
-        catch (PDOException $ex)
-        {
-            Error::createError($ex->getMessage());
-        }
+		self::_getInstance()->execute('DELETE FROM ' . static::$_table . ' WHERE ' . static::$_primary . ' = :primary', [':primary' => $primary]);
     }
 
     /**
@@ -166,17 +144,7 @@ abstract class Model
      */
     public static function count()
     {
-        try
-        {
-            $request = 'SELECT Count(' . static::$primary . ') AS count FROM ' . static::$table;
-            $sql = self::getInstance()->prepare($request);
-            $sql->execute();
-            return $sql->fetch(PDO::FETCH_OBJ)->count;
-        }
-        catch (PDOException $ex)
-        {
-            Error::createError($ex->getMessage());
-        }
+		return self::_getInstance()->queryOne('SELECT Count(' . static::$_primary . ') AS count FROM ' . static::$_table)->count;
     }
 
 }

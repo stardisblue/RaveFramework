@@ -41,9 +41,9 @@ class Router
     {
         self::$_params = explode('/', $get);
 
-        $controllerClass = self::getController();
+        $controllerClass = self::_getController();
 
-        $controllerMethod = self::getMethod();
+        $controllerMethod = self::_getMethod();
 
         $controllerFile = ROOT . '/Application/Controller/' . $controllerClass . '.php';
 
@@ -55,7 +55,7 @@ class Router
 
         $class = new $controllerClass;
 
-        self::callMethod($class, $controllerMethod);
+        self::_callMethod($class, $controllerMethod);
     }
 
     /**
@@ -64,7 +64,7 @@ class Router
      * @return string
      *  Retourne le nom du controleur
      */
-    private static function getController()
+    private static function _getController()
     {
         if (isset(self::$_params[self::CONTROLLER_KEY]) && !empty(self::$_params[self::CONTROLLER_KEY])) {
             $controller = ucfirst(self::$_params[self::CONTROLLER_KEY]);
@@ -83,7 +83,7 @@ class Router
      * @return string
      *  Retourne le nom de la méthode
      */
-    private static function getMethod()
+    private static function _getMethod()
     {
         if (isset(self::$_params[self::METHOD_KEY]) && !empty(self::$_params[self::METHOD_KEY])) {
             $action = self::$_params[self::METHOD_KEY];
@@ -104,7 +104,7 @@ class Router
      * @param string $action
      *  Méthode appelée
      */
-    private static function callMethod($class, $action)
+    private static function _callMethod($class, $action)
     {
         if (method_exists($class, $action) && is_callable([$class, $action])) {
             call_user_func_array([$class, $action], self::$_params);

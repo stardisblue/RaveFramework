@@ -12,8 +12,8 @@ class Error
 
     /**
      * Méthode permettant de créer une erreur
-     * Redirection 404 si l'application est en
-     * mode production
+     * Redirection vers une page d'erreur si
+     * l'application est en mode production
      * @param string $error
      *  Message d'erreur
      */

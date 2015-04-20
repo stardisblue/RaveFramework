@@ -68,7 +68,7 @@ class Out
      */
     public static function cookie($name, $value, $expire)
     {
-        setcookie($name, $value, time() + $expire, NULL, NULL, FALSE, TRUE);
+        setcookie($name, $value, time() + $expire, null, null, false, true);
     }
 
     /**
@@ -78,7 +78,7 @@ class Out
      */
     public static function unsetCookie($name)
     {
-        setcookie($name, NULL, 0, NULL, NULL, FALSE, FALSE);
+        setcookie($name, null, 0, null, null, false, false);
     }
 
     /**
