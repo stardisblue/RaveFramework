@@ -65,8 +65,10 @@ class Route
                 Error::create('Router: method "' . $method . '" does not exists', 500);
             }
 
-            call_user_func_array([$controller, 'beforeCall'], $this->callable);
-            return call_user_func_array([$controller, $method], $this->matches);
+            $result = $controller->$method(...$this->matches);
+            $controller->afterCall($method, $result);
+
+            return $result;
         } else {
             if (!is_callable($this->callable)) {
                 Error::create('Router: method does not exists', 500);
@@ -80,6 +82,7 @@ class Route
     public function with(string $parameter, string $regex): Route
     {
         $this->parameters[$parameter] = str_replace('(', '(?:', $regex);
+
         return $this;
     }
 
@@ -87,8 +90,7 @@ class Route
     {
         $path = $this->path;
 
-        foreach ($parameters as $key => $value)
-        {
+        foreach ($parameters as $key => $value) {
             $path = str_replace(':' . $key, $value, $path);
         }
 
