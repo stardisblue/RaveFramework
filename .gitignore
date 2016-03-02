@@ -1,3 +1,5 @@
+config/Config.php
+
 nbproject
 
 ### Windows template
@@ -52,6 +54,8 @@ Temporary Items
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
 *.iml
+.idea
+
 
 ## File-based project format:
 *.ipr
@@ -134,5 +138,3 @@ nbactions.xml
 nb-configuration.xml
 .nb-gradle/
 
-.idea
-.gitignore
