@@ -16,6 +16,10 @@ abstract class Controller
 
     private static $currentLogFile;
 
+    public function beforeCall($method)
+    {
+    }
+
     protected function loadView(string $view, array $data = [])
     {
         if (!empty($data) || !empty($this->data)) {
@@ -45,13 +49,13 @@ abstract class Controller
 
     protected function redirect(string $page = '')
     {
-    	header('Location: ' . WEB_ROOT . '/' . $page);
+        header('Location: ' . WEB_ROOT . '/' . $page);
         exit;
     }
-    
+
     protected function log(string $message, int $priority = self::LOG_NOTICE)
     {
-    	$log = date('H:i:s');
+        $log = date('H:i:s');
 
         switch ($priority) {
             case self::LOG_NOTICE:
@@ -73,13 +77,13 @@ abstract class Controller
 
     private function writeLog(string $message)
     {
-    	if (isset(self::$currentLogFile)) {
-    		file_put_contents(self::$currentLogFile, $message . PHP_EOL, FILE_APPEND);
-    	} else {
+        if (isset(self::$currentLogFile)) {
+            file_put_contents(self::$currentLogFile, $message . PHP_EOL, FILE_APPEND);
+        } else {
             if (file_exists(ROOT . '/log') === false) {
-            	mkdir(ROOT . '/log');
+                mkdir(ROOT . '/log');
             }
-    		
+
             self::$currentLogFile = ROOT . '/log/' . date('d-m-Y') . '.log';
 
             if (!file_exists(self::$currentLogFile) && !fopen(self::$currentLogFile, 'a')) {
